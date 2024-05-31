@@ -6,6 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 
 const generateAccessAndRefreshTokens=async(userId)=>{
+    
     try {
         const user=await User.findById(userId)
         const accessToken=user.generateAccessToken()
@@ -13,8 +14,9 @@ const generateAccessAndRefreshTokens=async(userId)=>{
 
 
         user.refreshToken=refreshToken
+       
         await user.save({validateBeforeSave:false})
-
+     
         return {accessToken,refreshToken}
     } catch (error) {
         throw new ApiError(500,"Something went wrong while generating access and refresh tokens")
@@ -112,8 +114,9 @@ const loginUser=asyncHandler(async(req,res)=>{
     }
 
     const {accessToken,refreshToken}=await generateAccessAndRefreshTokens(user._id)
+  
 
-    const loggedInUser=User.findById(user._id).select("-password -refreshToken")
+    const loggedInUser=await User.findById(user._id).select("-password -refreshToken")
 
     const options={
         httpOnly:true,
